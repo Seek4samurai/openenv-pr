@@ -21,12 +21,12 @@ def load_task_data(folder):
 
 
 def task_easy():
-    return load_task_data("data/tasks/easy")
+    return load_task_data("tasks/easy")
 
 
 def task_medium():
-    return load_task_data("data/tasks/medium")
+    return load_task_data("tasks/medium")
 
 
 def task_hard():
-    return load_task_data("data/tasks/hard")
+    return load_task_data("tasks/hard")

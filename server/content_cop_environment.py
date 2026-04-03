@@ -80,10 +80,10 @@ class ContentCopEnvironment(Environment):
 
         v, n = predict_frame(frame)
 
-        # simple ground truth logic (you can improve later)
-        if n > 0.8:
+        # lower-manual score settlement
+        if n > 0.7:
             true_label = 2  # NSFW
-        elif v > 0.7:
+        elif v > 0.6:
             true_label = 1  # VIOLENCE
         else:
             true_label = 0  # SAFE

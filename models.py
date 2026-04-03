@@ -11,7 +11,8 @@ The content_cop environment is a simple test environment that echoes back messag
 """
 
 from openenv.core.env_server.types import Action, Observation
-from pydantic import Field
+from pydantic import Field, BaseModel
+from typing import Dict, Any
 
 
 class ContentCopAction(Action):
@@ -20,7 +21,8 @@ class ContentCopAction(Action):
     label: int
 
 
-class ContentCopObservation(Observation):
-    """Environment gives a frame to classify"""
-
+class ContentCopObservation(BaseModel):
     frame_path: str
+    reward: float = 0.0
+    done: bool = False
+    info: Dict[str, Any] = {}

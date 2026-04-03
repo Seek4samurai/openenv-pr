@@ -4,8 +4,8 @@ import numpy as np
 from tensorflow.keras.applications.mobilenet_v2 import preprocess_input
 
 
-violence_model = load_model("./checkpoints/gore/violence_best_model.h5")
-nsfw_model = load_model("./checkpoints/nsfw/v2_nsfw_model.h5")
+violence_model = load_model("content_cop/checkpoints/gore/violence_best_model.h5")
+nsfw_model = load_model("content_cop/checkpoints/nsfw/v2_nsfw_model.h5")
 
 
 def preprocess(frame):

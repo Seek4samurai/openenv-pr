@@ -1,14 +1,32 @@
+import os
 import cv2
-from inference import predict_frame
-from models import ContentCopObservation
+from ..inference import predict_frame
+from ..models import ContentCopObservation
 from .reward import compute_reward
 
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+BASE_DIR = os.path.dirname(BASE_DIR)  # go to content_cop/
+
+
 class ContentModerationEnv:
-    def __init__(self, data, labels):
-        self.data = data
-        self.labels = labels
+    def __init__(self):
+        self.data = []
+        self.labels = []
         self.index = 0
+
+        print("ENV CREATED")
+
+        base_path = os.path.join(BASE_DIR, "data")
+
+        for label, folder in enumerate(["safe", "nsfw", "violence"]):
+            folder_path = os.path.join(base_path, folder)
+
+            for file in os.listdir(folder_path):
+                self.data.append(os.path.join(folder_path, file))
+                self.labels.append(label)
+
+        print("Loaded samples:", len(self.data))
 
     def reset(self):
         self.index = 0
@@ -24,35 +42,31 @@ class ContentModerationEnv:
         if frame is None:
             raise ValueError(f"Failed to load image: {img_path}")
 
-        # 🔥 model prediction
+        # prediction
         v, n = predict_frame(frame)
 
-        # convert to class label
         if n > 0.7:
-            pred = 2  # NSFW
+            pred = 2
         elif v > 0.6:
-            pred = 1  # VIOLENCE
+            pred = 1
         else:
-            pred = 0  # SAFE
+            pred = 0
 
-        # ✅ actual label
         label = self.labels[self.index]
-
-        reward = compute_reward(action, label)
+        reward = compute_reward(pred, label)
 
         info = {"model_pred": pred, "true_label": label}
 
+        # ✅ create observation FIRST (current frame)
+        observation = ContentCopObservation(frame_path=img_path)
+
+        # THEN move forward
         self.index += 1
         done = self.index >= len(self.data)
 
-        next_state = None if done else self.data[self.index]
-        print("Action:", action)
+        print("INDEX:", self.index)
         print("True label:", label)
         print("Model pred:", pred)
-
-        if done:
-            observation = None
-        else:
-            observation = ContentCopObservation(frame_path=self.data[self.index])
+        print("STEP INDEX:", self.index, "FILE:", img_path)
 
         return observation, reward, done, info

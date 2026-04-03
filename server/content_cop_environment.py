@@ -11,14 +11,19 @@ A simple test environment that echoes back messages sent to it.
 Perfect for testing HTTP server infrastructure.
 """
 
+import os
 import cv2
 from uuid import uuid4
 from openenv.core.env_server.interfaces import Environment
 from openenv.core.env_server.types import State
 
 from ..models import ContentCopAction, ContentCopObservation
-from .inference import predict_frame
-from env.reward import compute_reward
+from ..env.environment import ContentModerationEnv
+from ..inference import predict_frame
+from ..env.reward import compute_reward
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+BASE_DIR = os.path.dirname(BASE_DIR)  # go from server/ → content_cop/
 
 
 class ContentCopEnvironment(Environment):
@@ -44,54 +49,46 @@ class ContentCopEnvironment(Environment):
     # getting their own environment instance (when using factory mode in app.py).
     SUPPORTS_CONCURRENT_SESSIONS: bool = True
 
+    # def __init__(self):
+    #     self._state = State(episode_id=str(uuid4()), step_count=0)
+    #     self._reset_count = 0
+
+    #     self.data = []
+    #     self.labels = []
+
+    #     base_path = os.path.join(BASE_DIR, "data")
+
+    #     print("Total files loaded:", len(self.data))
+
+    #     for label, folder in enumerate(["safe", "nsfw", "violence"]):
+    #         folder_path = os.path.join(base_path, folder)
+
+    #         for file in os.listdir(folder_path):
+    #             self.data.append(os.path.join(folder_path, file))
+    #             self.labels.append(label)
+
+    #     self.env = ContentModerationEnv(self.data, self.labels)
+
     def __init__(self):
         self._state = State(episode_id=str(uuid4()), step_count=0)
         self._reset_count = 0
-
-        self.data = []
-        self.labels = []
-
-        base_path = "data"
-
-        for label, folder in enumerate(["safe", "nsfw", "violence"]):
-            folder_path = os.path.join(base_path, folder)
-
-            for file in os.listdir(folder_path):
-                self.data.append(os.path.join(folder_path, file))
-                self.labels.append(label)
-
-        self.env = ContentModerationEnv(self.data, self.labels)
+        self.env = ContentModerationEnv()
 
     def reset(self) -> ContentCopObservation:
-        """Reset the environment."""
         self._state = State(episode_id=str(uuid4()), step_count=0)
 
-        state = self.env.reset()
+        observation = self.env.reset()
 
-        return ContentCopObservation(
-            frame_path=self.data[0],
-            reward=0.0,
-            done=False,
-        )
+        return observation
 
-    def step(self, action: ContentCopAction) -> ContentCopObservation:  # type: ignore[override]
-        """Execute a step in the environment by echoing the message."""
-        frame = cv2.imread(self.current_frame_path)
+    def step(self, action: ContentCopAction):
+        observation, reward, done, info = self.env.step(action)
 
-        v, n = predict_frame(frame)
+        observation.reward = reward
+        observation.done = done
+        observation.info = info
 
-        # lower-manual score settlement
-        if n > 0.7:
-            true_label = 2  # NSFW
-        elif v > 0.6:
-            true_label = 1  # VIOLENCE
-        else:
-            true_label = 0  # SAFE
-
-        # compare agent vs ground truth
-        reward = compute_reward(action, label)
-
-        return observation, reward, done, {}
+        return observation
 
     @property
     def state(self) -> State:

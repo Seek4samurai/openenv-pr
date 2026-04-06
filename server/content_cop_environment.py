@@ -25,6 +25,9 @@ from env.reward import compute_reward
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 BASE_DIR = os.path.dirname(BASE_DIR)  # go from server/ → content_cop/
 
+_SHARED_ENV = ContentModerationEnv()
+_SHARED_STATE = State(episode_id=str(uuid4()), step_count=0)
+
 
 class ContentCopEnvironment(Environment):
     """
@@ -70,23 +73,26 @@ class ContentCopEnvironment(Environment):
     #     self.env = ContentModerationEnv(self.data, self.labels)
 
     def __init__(self):
-        self._state = State(episode_id=str(uuid4()), step_count=0)
+        # self.env = ContentModerationEnv()
+        self.env = _SHARED_ENV
+        # self._state = State(episode_id=str(uuid4()), step_count=0)
+        self._global_state = _SHARED_STATE
         self._reset_count = 0
-        self.env = ContentModerationEnv()
 
     def reset(self) -> ContentCopObservation:
-        self._state = State(episode_id=str(uuid4()), step_count=0)
-
+        # self._state = State(episode_id=str(uuid4()), step_count=0)
+        self._global_state.episode_id = str(uuid4())
+        self._global_state.step_count = 0
         observation = self.env.reset()
-
         return observation
 
     def step(self, action: ContentCopAction):
         observation, reward, done, info = self.env.step(action)
-
         observation.reward = reward
         observation.done = done
         observation.info = info
+
+        self._global_state.step_count += 1
 
         return observation
 
@@ -98,4 +104,4 @@ class ContentCopEnvironment(Environment):
         Returns:
             Current State with episode_id and step_count
         """
-        return self._state
+        return self._global_state

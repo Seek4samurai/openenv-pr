@@ -17,10 +17,10 @@ from uuid import uuid4
 from openenv.core.env_server.interfaces import Environment
 from openenv.core.env_server.types import State
 
-from ..models import ContentCopAction, ContentCopObservation
-from ..env.environment import ContentModerationEnv
-from ..inference import predict_frame
-from ..env.reward import compute_reward
+from models import ContentCopAction, ContentCopObservation
+from env.environment import ContentModerationEnv
+from inference import predict_frame
+from env.reward import compute_reward
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 BASE_DIR = os.path.dirname(BASE_DIR)  # go from server/ → content_cop/

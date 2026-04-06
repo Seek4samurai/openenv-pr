@@ -12,12 +12,10 @@ from openenv.core import EnvClient
 from openenv.core.client_types import StepResult
 from openenv.core.env_server.types import State
 
-from .models import ContentCopAction, ContentCopObservation
+from models import ContentCopAction, ContentCopObservation
 
 
-class ContentCopEnv(
-    EnvClient[ContentCopAction, ContentCopObservation, State]
-):
+class ContentCopEnv(EnvClient[ContentCopAction, ContentCopObservation, State]):
     """
     Client for the Content Cop Environment.
 

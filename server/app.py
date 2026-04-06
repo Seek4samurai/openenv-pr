@@ -36,8 +36,8 @@ except Exception as e:  # pragma: no cover
     ) from e
 
 try:
-    from ..models import ContentCopAction, ContentCopObservation
-    from .content_cop_environment import ContentCopEnvironment
+    from models import ContentCopAction, ContentCopObservation
+    from content_cop_environment import ContentCopEnvironment
 except ModuleNotFoundError:
     from models import ContentCopAction, ContentCopObservation
     from server.content_cop_environment import ContentCopEnvironment

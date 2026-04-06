@@ -1,8 +1,8 @@
 import os
 import cv2
-from ..inference import predict_frame
-from ..models import ContentCopObservation
-from .reward import compute_reward
+from inference import predict_frame
+from models import ContentCopObservation
+from env.reward import compute_reward
 
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))

@@ -23,14 +23,18 @@ Detect NSFW / Violence content in images/videos.
 
 ```bash
 pip install -r requirements.txt
-python test_env.py
+uvicorn server.app:app
 
 ```
 
-# Expected output:
+## Run using docker
+
+```bash
+docker build -t service .
+docker run -p 8000:8000 service
 
 ```
-Action: 1
-Reward: 1
-```
 
+## API Dashboard
+
+Head to `http://localhost:8000/docs/` on your browser. And You'll see 3 APIs `/reset`, `/step`, and `/state`
